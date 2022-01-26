@@ -1,0 +1,14 @@
+kj_dbvcs_settings:
+  path: /kjdbvcs/settings
+  methods: [GET]
+  defaults:
+    _controller: 'Kaudaj\Module\DBVCS\Controller\Admin\SettingsController::indexAction'
+    _legacy_controller: DBVCSSettings
+
+kj_dbvcs_settings_general_save:
+  path: /kjdbvcs/settings/general
+  methods: [POST, PATCH]
+  defaults:
+    _controller: 'Kaudaj\Module\DBVCS\Controller\Admin\SettingsController::processGeneralFormAction'
+    _legacy_controller: DBVCSSettings
+    _legacy_link: DBVCSSettings:update
