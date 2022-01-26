@@ -61,9 +61,9 @@ class KJDBVCS extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->trans('DBVCS', [], 'Modules.Kjdbvcs.Admin');
+        $this->displayName = $this->trans('Database Version Control System', [], 'Modules.Kjdbvcs.Admin');
         $this->description = $this->trans(<<<EOF
-        Boost module development by providing a solid bedrock.
+        Provide version control for database by generating scripts with changes and applying them on demand.
 EOF
             ,
             [],
@@ -72,11 +72,11 @@ EOF
 
         $this->tabs = [
             [
-                'name' => 'DBVCS Settings',
+                'name' => 'DB VCS Settings',
                 'class_name' => 'DBVCSSettings',
                 'parent_class_name' => 'CONFIGURE',
                 'visible' => false,
-                'wording' => 'DBVCS Settings',
+                'wording' => 'DB VCS Settings',
                 'wording_domain' => 'Modules.Kjdbvcs.Admin',
             ],
         ];
