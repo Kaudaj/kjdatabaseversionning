@@ -24,6 +24,7 @@ if (file_exists(dirname(__FILE__) . '/vendor/autoload.php')) {
 }
 
 use Kaudaj\Module\DBVCS\Form\Settings\GeneralConfiguration;
+use Kaudaj\Module\DBVCS\VersionControlManager;
 use PrestaShop\PrestaShop\Adapter\Configuration;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -41,13 +42,18 @@ class KJDBVCS extends Module
      * @var string[] Hooks to register
      */
     public const HOOKS = [
-        'exampleHook',
+        'actionModuleInstallAfter',
     ];
 
     /**
      * @var Configuration<string, mixed> Configuration
      */
     private $configuration;
+
+    /**
+     * @var VersionControlManager
+     */
+    private $versionControlManager;
 
     public function __construct()
     {
@@ -82,6 +88,14 @@ EOF
         ];
 
         $this->configuration = new Configuration();
+
+        try {
+            /** @var VersionControlManager */
+            $versionControlManager = $this->get('kaudaj.module.kjdbvcs.version_control_manager');
+
+            $this->versionControlManager = $versionControlManager;
+        } catch (Exception $e) {
+        }
     }
 
     /**
@@ -161,12 +175,10 @@ EOF
     }
 
     /**
-     * Example hook
-     *
      * @param array<string, mixed> $params Hook parameters
      */
-    public function hookExampleHook(array $params): void
+    public function hookActionModuleInstallAfter(array $params): void
     {
-        /* Do anything */
+        $this->versionControlManager->registerChange();
     }
 }

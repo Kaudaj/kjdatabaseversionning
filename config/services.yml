@@ -2,6 +2,9 @@ services:
   _defaults:
     public: true
 
+  kaudaj.module.dbvcs.version_control_manager:
+    class: Kaudaj\Module\DBVCS\VersionControlManager
+
   kaudaj.module.dbvcs.form.settings.general_configuration:
     class: Kaudaj\Module\DBVCS\Form\Settings\GeneralConfiguration
     arguments:
