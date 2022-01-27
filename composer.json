@@ -19,7 +19,8 @@
         "phpstan/phpstan": "^1.2",
         "phpro/grumphp-shim": "^1.5",
         "phpstan/phpstan-doctrine": "^1.0",
-        "phpstan/extension-installer": "^1.1"
+        "phpstan/extension-installer": "^1.1",
+        "symfony/maker-bundle": "^1.36"
     },
     "autoload": {
         "psr-4": {
