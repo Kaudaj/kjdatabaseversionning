@@ -24,6 +24,8 @@ if (file_exists(dirname(__FILE__) . '/vendor/autoload.php')) {
 }
 
 use Kaudaj\Module\DBVCS\Form\Settings\GeneralConfiguration;
+use Kaudaj\Module\DBVCS\Repository\ChangeLangRepository;
+use Kaudaj\Module\DBVCS\Repository\ChangeRepository;
 use Kaudaj\Module\DBVCS\VersionControlManager;
 use PrestaShop\PrestaShop\Adapter\Configuration;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
@@ -114,6 +116,7 @@ EOF
         return parent::install()
             && $this->installConfiguration()
             && $this->registerHook(self::HOOKS)
+            && $this->installTables()
         ;
     }
 
@@ -134,12 +137,44 @@ EOF
     }
 
     /**
+     * Install database tables
+     *
+     * @return bool
+     */
+    private function installTables()
+    {
+        $sql = '
+            CREATE TABLE IF NOT EXISTS `' . pSQL(_DB_PREFIX_) . ChangeRepository::TABLE_NAME . '` (
+                `id_change` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `id_commit` INT UNSIGNED,
+                `date_add` DATETIME NOT NULL
+            ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
+
+            CREATE TABLE IF NOT EXISTS `' . pSQL(_DB_PREFIX_) . ChangeLangRepository::TABLE_NAME . '` (
+                `id_change` INT UNSIGNED NOT NULL,
+                `id_lang` INT UNSIGNED NOT NULL,
+                `description` INT UNSIGNED NOT NULL,
+                PRIMARY KEY (id_change, id_lang),
+                FOREIGN KEY (`id_change`)
+                REFERENCES `' . pSQL(_DB_PREFIX_) . 'kj_dbvcs_change` (`id_change`) 
+                ON DELETE CASCADE,
+                FOREIGN KEY (`id_lang`)
+                REFERENCES `' . pSQL(_DB_PREFIX_) . 'lang` (`id_lang`) 
+                ON DELETE CASCADE
+            ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
+        ';
+
+        return Db::getInstance()->execute($sql);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function uninstall(): bool
     {
         return parent::uninstall()
             && $this->uninstallConfiguration()
+            && $this->uninstallTables()
         ;
     }
 
@@ -157,6 +192,18 @@ EOF
         }
 
         return true;
+    }
+
+    /**
+     * Uninstall database tables
+     *
+     * @return bool
+     */
+    private function uninstallTables()
+    {
+        $sql = 'DROP TABLE IF EXISTS `' . pSQL(_DB_PREFIX_) . 'kj_dbvcs_change`';
+
+        return Db::getInstance()->execute($sql);
     }
 
     /**
