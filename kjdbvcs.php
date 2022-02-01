@@ -52,10 +52,10 @@ class KJDBVCS extends Module
      */
     private $configuration;
 
-    /**
-     * @var VersionControlManager
-     */
-    private $versionControlManager;
+    // /**
+    //  * @var VersionControlManager
+    //  */
+    // private $versionControlManager;
 
     public function __construct()
     {
@@ -91,13 +91,13 @@ EOF
 
         $this->configuration = new Configuration();
 
-        try {
-            /** @var VersionControlManager */
-            $versionControlManager = $this->get('kaudaj.module.kjdbvcs.version_control_manager');
+        // try {
+        //     /** @var VersionControlManager */
+        //     $versionControlManager = $this->get('kaudaj.module.kjdbvcs.version_control_manager');
 
-            $this->versionControlManager = $versionControlManager;
-        } catch (Exception $e) {
-        }
+        //     $this->versionControlManager = $versionControlManager;
+        // } catch (Exception $e) {
+        // }
     }
 
     /**
@@ -143,16 +143,20 @@ EOF
      */
     private function installTables()
     {
-        $sql = '
+        $sql = [];
+
+        $sql[] = '
             CREATE TABLE IF NOT EXISTS `' . ChangeRepository::TABLE_NAME . '` (
                 `id_change` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 `id_commit` INT UNSIGNED,
                 `date_add` DATETIME NOT NULL
             ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
+        ';
 
+        $sql[] = '
             CREATE TABLE IF NOT EXISTS `' . ChangeLangRepository::TABLE_NAME . '` (
                 `id_change` INT UNSIGNED NOT NULL,
-                `id_lang` INT UNSIGNED NOT NULL,
+                `id_lang` INT NOT NULL,
                 `description` INT UNSIGNED NOT NULL,
                 PRIMARY KEY (id_change, id_lang),
                 FOREIGN KEY (`id_change`)
@@ -164,7 +168,12 @@ EOF
             ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
         ';
 
-        return Db::getInstance()->execute($sql);
+        $result = true;
+        foreach ($sql as $query) {
+            $result = $result && Db::getInstance()->execute($query);
+        }
+
+        return $result;
     }
 
     /**
@@ -201,12 +210,22 @@ EOF
      */
     private function uninstallTables()
     {
-        $sql = '
-            DROP TABLE IF EXISTS `' . ChangeRepository::TABLE_NAME . '`;
-            DROP TABLE IF EXISTS `' . ChangeLangRepository::TABLE_NAME . '`;
+        $sql = [];
+
+        $sql[] = '
+            DROP TABLE IF EXISTS `' . ChangeLangRepository::TABLE_NAME . '`
         ';
 
-        return Db::getInstance()->execute($sql);
+        $sql[] = '
+            DROP TABLE IF EXISTS `' . ChangeRepository::TABLE_NAME . '`
+        ';
+
+        $result = true;
+        foreach ($sql as $query) {
+            $result = $result && Db::getInstance()->execute($query);
+        }
+
+        return $result;
     }
 
     /**
