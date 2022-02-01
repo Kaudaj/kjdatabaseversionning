@@ -144,19 +144,19 @@ EOF
     private function installTables()
     {
         $sql = '
-            CREATE TABLE IF NOT EXISTS `' . pSQL(_DB_PREFIX_) . ChangeRepository::TABLE_NAME . '` (
+            CREATE TABLE IF NOT EXISTS `' . ChangeRepository::TABLE_NAME . '` (
                 `id_change` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 `id_commit` INT UNSIGNED,
                 `date_add` DATETIME NOT NULL
             ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
 
-            CREATE TABLE IF NOT EXISTS `' . pSQL(_DB_PREFIX_) . ChangeLangRepository::TABLE_NAME . '` (
+            CREATE TABLE IF NOT EXISTS `' . ChangeLangRepository::TABLE_NAME . '` (
                 `id_change` INT UNSIGNED NOT NULL,
                 `id_lang` INT UNSIGNED NOT NULL,
                 `description` INT UNSIGNED NOT NULL,
                 PRIMARY KEY (id_change, id_lang),
                 FOREIGN KEY (`id_change`)
-                REFERENCES `' . pSQL(_DB_PREFIX_) . ChangeRepository::TABLE_NAME . '` (`id_change`) 
+                REFERENCES `' . ChangeRepository::TABLE_NAME . '` (`id_change`) 
                 ON DELETE CASCADE,
                 FOREIGN KEY (`id_lang`)
                 REFERENCES `' . pSQL(_DB_PREFIX_) . 'lang` (`id_lang`) 
@@ -202,8 +202,8 @@ EOF
     private function uninstallTables()
     {
         $sql = '
-            DROP TABLE IF EXISTS `' . pSQL(_DB_PREFIX_) . ChangeRepository::TABLE_NAME . '
-            DROP TABLE IF EXISTS `' . pSQL(_DB_PREFIX_) . ChangeLangRepository::TABLE_NAME
+            DROP TABLE IF EXISTS `' . ChangeRepository::TABLE_NAME . '
+            DROP TABLE IF EXISTS `' . ChangeLangRepository::TABLE_NAME
         ;
 
         return Db::getInstance()->execute($sql);
