@@ -32,3 +32,44 @@ services:
       - "@kaudaj.module.dbvcs.form.settings.general_form_data_provider"
       - 'Kaudaj\Module\DBVCS\Form\Settings\GeneralType'
       - "General"
+
+  kaudaj.module.dbvcs.change.query_handler.abstract:
+    abstract: true
+    class: Kaudaj\Module\DBVCS\Domain\Change\QueryHandler\AbstractChangeQueryHandler
+    arguments:
+      - '@doctrine.orm.entity_manager'
+
+  kaudaj.module.dbvcs.change.query_handler.get_change:
+    parent: 'kaudaj.module.dbvcs.change.query_handler.abstract'
+    class: Kaudaj\Module\DBVCS\Domain\Change\QueryHandler\GetChangeHandler
+    tags:
+      name: tactician.handler
+      command: Kaudaj\Module\DBVCS\Domain\Change\Query\GetChangeForEditing
+
+  kaudaj.module.dbvcs.change.command_handler.abstract:
+    abstract: true
+    class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\AbstractChangeCommandHandler
+    arguments:
+      - '@doctrine.orm.entity_manager'
+
+  kaudaj.module.dbvcs.change.command_handler.add_change:
+    parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
+    class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\AddChangeHandler
+    tags:
+      name: tactician.handler
+      command: Kaudaj\Module\DBVCS\Domain\Change\Command\AddChangeCommand
+
+  kaudaj.module.dbvcs.change.command_handler.edit_change:
+    parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
+    class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\EditChangeHandler
+    tags:
+      name: tactician.handler
+      command: Kaudaj\Module\DBVCS\Domain\Change\Command\EditChangeCommand
+
+  kaudaj.module.dbvcs.change.command_handler.delete_change:
+    parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
+    class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\DeleteChangeHandler
+    tags:
+      name: tactician.handler
+      command: Kaudaj\Module\DBVCS\Domain\Change\Command\DeleteChangeCommand
+
