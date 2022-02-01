@@ -202,9 +202,9 @@ EOF
     private function uninstallTables()
     {
         $sql = '
-            DROP TABLE IF EXISTS `' . ChangeRepository::TABLE_NAME . '
-            DROP TABLE IF EXISTS `' . ChangeLangRepository::TABLE_NAME
-        ;
+            DROP TABLE IF EXISTS `' . ChangeRepository::TABLE_NAME . '`;
+            DROP TABLE IF EXISTS `' . ChangeLangRepository::TABLE_NAME . '`;
+        ';
 
         return Db::getInstance()->execute($sql);
     }
@@ -229,6 +229,6 @@ EOF
      */
     public function hookActionModuleInstallAfter(array $params): void
     {
-        $this->versionControlManager->registerChange();
+        // $this->versionControlManager->registerChange();
     }
 }
