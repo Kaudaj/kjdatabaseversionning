@@ -156,7 +156,7 @@ EOF
                 `description` INT UNSIGNED NOT NULL,
                 PRIMARY KEY (id_change, id_lang),
                 FOREIGN KEY (`id_change`)
-                REFERENCES `' . pSQL(_DB_PREFIX_) . 'kj_dbvcs_change` (`id_change`) 
+                REFERENCES `' . pSQL(_DB_PREFIX_) . ChangeRepository::TABLE_NAME . '` (`id_change`) 
                 ON DELETE CASCADE,
                 FOREIGN KEY (`id_lang`)
                 REFERENCES `' . pSQL(_DB_PREFIX_) . 'lang` (`id_lang`) 
@@ -201,7 +201,10 @@ EOF
      */
     private function uninstallTables()
     {
-        $sql = 'DROP TABLE IF EXISTS `' . pSQL(_DB_PREFIX_) . 'kj_dbvcs_change`';
+        $sql = '
+            DROP TABLE IF EXISTS `' . pSQL(_DB_PREFIX_) . ChangeRepository::TABLE_NAME . '
+            DROP TABLE IF EXISTS `' . pSQL(_DB_PREFIX_) . ChangeLangRepository::TABLE_NAME
+        ;
 
         return Db::getInstance()->execute($sql);
     }
