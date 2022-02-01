@@ -39,7 +39,8 @@ services:
     arguments:
       - '@doctrine.orm.entity_manager'
 
-  kaudaj.module.dbvcs.change.query_handler.get_change:
+  kaudaj.module.dbvcs.change.query_handler.get:
+    public: true
     parent: 'kaudaj.module.dbvcs.change.query_handler.abstract'
     class: Kaudaj\Module\DBVCS\Domain\Change\QueryHandler\GetChangeHandler
     tags:
@@ -52,21 +53,24 @@ services:
     arguments:
       - '@doctrine.orm.entity_manager'
 
-  kaudaj.module.dbvcs.change.command_handler.add_change:
+  kaudaj.module.dbvcs.change.command_handler.add:
+    public: true
     parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
     class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\AddChangeHandler
     tags:
       name: tactician.handler
       command: Kaudaj\Module\DBVCS\Domain\Change\Command\AddChangeCommand
 
-  kaudaj.module.dbvcs.change.command_handler.edit_change:
+  kaudaj.module.dbvcs.change.command_handler.edit:
+    public: true
     parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
     class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\EditChangeHandler
     tags:
       name: tactician.handler
       command: Kaudaj\Module\DBVCS\Domain\Change\Command\EditChangeCommand
 
-  kaudaj.module.dbvcs.change.command_handler.delete_change:
+  kaudaj.module.dbvcs.change.command_handler.delete:
+    public: true
     parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
     class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\DeleteChangeHandler
     tags:
