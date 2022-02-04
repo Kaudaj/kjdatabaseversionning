@@ -80,11 +80,29 @@ EOF
 
         $this->tabs = [
             [
-                'name' => 'DB VCS Settings',
-                'class_name' => 'DBVCSSettings',
-                'parent_class_name' => 'CONFIGURE',
+                'name' => 'Database Version Control System',
+                'class_name' => 'KJDBVCS',
+                'parent_class_name' => 'AdminParentModulesSf',
                 'visible' => false,
-                'wording' => 'DB VCS Settings',
+                'wording' => 'Database Version Control System',
+                'wording_domain' => 'Modules.Kjdbvcs.Admin',
+            ],
+            [
+                'name' => 'Version Control',
+                'class_name' => 'KJDBVCSVersionControl',
+                'route_name' => 'kj_dbvcs_version_control',
+                'parent_class_name' => 'KJDBVCS',
+                'visible' => true,
+                'wording' => 'Version Control',
+                'wording_domain' => 'Modules.Kjdbvcs.Admin',
+            ],
+            [
+                'name' => 'Settings',
+                'class_name' => 'KJDBVCSSettings',
+                'route_name' => 'kj_dbvcs_settings',
+                'parent_class_name' => 'KJDBVCS',
+                'visible' => true,
+                'wording' => 'Settings',
                 'wording_domain' => 'Modules.Kjdbvcs.Admin',
             ],
         ];
@@ -148,7 +166,7 @@ EOF
         $sql[] = '
             CREATE TABLE IF NOT EXISTS `' . ChangeRepository::TABLE_NAME . '` (
                 `id_change` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                `id_commit` INT UNSIGNED,
+                `commit` INT UNSIGNED,
                 `date_add` DATETIME NOT NULL
             ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
         ';

@@ -1,14 +1,28 @@
+kj_dbvcs:
+  path: /kjdbvcs
+  methods: [GET]
+  defaults:
+    _controller: 'Kaudaj\Module\DBVCS\Controller\Admin\DBVCSController::indexAction'
+    _legacy_controller: KJDBVCS
+
+kj_dbvcs_version_control:
+  path: /kjdbvcs/version-control
+  methods: [GET]
+  defaults:
+    _controller: 'Kaudaj\Module\DBVCS\Controller\Admin\VersionControlController::indexAction'
+    _legacy_controller: KJDBVCSVersionControl
+
 kj_dbvcs_settings:
   path: /kjdbvcs/settings
   methods: [GET]
   defaults:
     _controller: 'Kaudaj\Module\DBVCS\Controller\Admin\SettingsController::indexAction'
-    _legacy_controller: DBVCSSettings
+    _legacy_controller: KJDBVCSSettings
 
 kj_dbvcs_settings_general_save:
   path: /kjdbvcs/settings/general
   methods: [POST, PATCH]
   defaults:
     _controller: 'Kaudaj\Module\DBVCS\Controller\Admin\SettingsController::processGeneralFormAction'
-    _legacy_controller: DBVCSSettings
-    _legacy_link: DBVCSSettings:update
+    _legacy_controller: KJDBVCSSettings
+    _legacy_link: KJDBVCSSettings:update

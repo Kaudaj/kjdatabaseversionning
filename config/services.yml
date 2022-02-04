@@ -76,4 +76,34 @@ services:
     tags:
       name: tactician.handler
       command: Kaudaj\Module\DBVCS\Domain\Change\Command\DeleteChangeCommand
+  
+  kaudaj.module.dbvcs.grid.definition.factory.change_grid_definition_factory:
+    public: true
+    class: Kaudaj\Module\DBVCS\Grid\Definition\Factory\ChangeGridDefinitionFactory
+    parent: prestashop.core.grid.definition.factory.abstract_grid_definition
 
+  kaudaj.module.dbvcs.grid.query.change_query_builder:
+    public: true
+    class: Kaudaj\Module\DBVCS\Grid\Query\ChangeQueryBuilder
+    parent: prestashop.core.grid.abstract_query_builder
+    arguments:
+      - '@=service("prestashop.adapter.legacy.context").getContext().language.id'
+      - '@=service("prestashop.adapter.legacy.context").getContext().shop.id'
+
+  kaudaj.module.dbvcs.grid.data.factory.change_data_factory:
+    public: true
+    class: PrestaShop\PrestaShop\Core\Grid\Data\Factory\DoctrineGridDataFactory
+    arguments:
+      - '@kaudaj.module.dbvcs.grid.query.change_query_builder'
+      - '@prestashop.core.hook.dispatcher'
+      - '@prestashop.core.grid.query.doctrine_query_parser'
+      - changes
+
+  kaudaj.module.dbvcs.grid.change_grid_factory:
+    public: true
+    class: PrestaShop\PrestaShop\Core\Grid\GridFactory
+    arguments:
+      - '@kaudaj.module.dbvcs.grid.definition.factory.change_grid_definition_factory'
+      - '@kaudaj.module.dbvcs.grid.data.factory.change_data_factory'
+      - '@prestashop.core.grid.filter.form_factory'
+      - '@prestashop.core.hook.dispatcher'

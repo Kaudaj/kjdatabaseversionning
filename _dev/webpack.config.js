@@ -20,18 +20,37 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const path = require('path');
 
+const psRootDir = path.resolve(process.env.PWD, '../../../');
+const psJsDir = path.resolve(psRootDir, 'admin-dev/themes/new-theme/js');
+const psAppDir = path.resolve(psJsDir, 'app');
+const psComponentsDir = path.resolve(psJsDir, 'components');
+
+
 module.exports = {
   entry: {
     front: './css/front/front.scss',
     back: './css/back/back.scss',
     settings: './js/back/settings.js',
+    'version-control': './js/back/version-control.js',
   },
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, '../views/dist'),
   },
+  resolve: {
+    extensions: ['.js'],
+    alias: {
+      '@app': psAppDir,
+      '@components': psComponentsDir,
+    },
+  },
   module: {
     rules: [
+      {
+        test: /\.js$/,
+        include: psJsDir,
+        use: ['babel-loader'],
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
