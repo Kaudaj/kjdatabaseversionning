@@ -24,7 +24,14 @@
     'form_id': 'settings_general_form',
     'form_action': path('kj_dbvcs_settings_general_save'),
     'card_header': 'General' | trans({}, 'Modules.Kjdbvcs.Admin'),
-    'cancel_path': 'kj_dbvcs_settings'
+    'cancel_path': 'admin_module_manage'
+  } %}
+  {% include '@Modules/kjdbvcs/views/templates/back/components/organisms/form.html.twig' with {
+    'form': changes_registration_form,
+    'form_id': 'settings_changes_registration_form',
+    'form_action': path('kj_dbvcs_settings_changes_registration_save'),
+    'card_header': 'Changes Registration' | trans({}, 'Modules.Kjdbvcs.Admin'),
+    'cancel_path': 'admin_module_manage'
   } %}
 {% endblock %}
 

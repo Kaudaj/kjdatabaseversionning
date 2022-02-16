@@ -53,11 +53,17 @@ class SettingsController extends FrameworkBundleAdminController
     {
         $generalFormDataHandler = $this->getGeneralFormHandler();
 
-        /** @var FormInterface<string, mixed> $generalForm */
+        /** @var FormInterface<string, mixed> */
         $generalForm = $generalFormDataHandler->getForm();
+
+        $changesRegistrationFormDataHandler = $this->getChangesRegistrationFormHandler();
+
+        /** @var FormInterface<string, mixed> */
+        $changesRegistration = $changesRegistrationFormDataHandler->getForm();
 
         return $this->render('@Modules/kjdbvcs/views/templates/back/components/layouts/settings.html.twig', [
             'general_form' => $generalForm->createView(),
+            'changes_registration_form' => $changesRegistration->createView(),
         ]);
     }
 
@@ -83,6 +89,52 @@ class SettingsController extends FrameworkBundleAdminController
             $this->getGeneralFormHandler(),
             'General'
         );
+    }
+
+    /**
+     * @AdminSecurity(
+     *      "is_granted('update', request.get('_legacy_controller')) && is_granted('create', request.get('_legacy_controller')) && is_granted('delete', request.get('_legacy_controller'))",
+     *      message="You do not have permission to update this.",
+     *      redirectRoute="kj_dbvcs_settings"
+     * )
+     *
+     * @DemoRestricted(redirectRoute="kj_dbvcs_settings")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse
+     *
+     * @throws \LogicException
+     */
+    public function processChangesRegistrationFormAction(Request $request)
+    {
+        return $this->processForm(
+            $request,
+            $this->getChangesRegistrationFormHandler(),
+            'ChangesRegistration'
+        );
+    }
+
+    /**
+     * @return FormHandlerInterface
+     */
+    private function getGeneralFormHandler()
+    {
+        /** @var FormHandlerInterface */
+        $formDataHandler = $this->get('kaudaj.module.dbvcs.form.settings.general_form_data_handler');
+
+        return $formDataHandler;
+    }
+
+    /**
+     * @return FormHandlerInterface
+     */
+    private function getChangesRegistrationFormHandler()
+    {
+        /** @var FormHandlerInterface */
+        $formDataHandler = $this->get('kaudaj.module.dbvcs.form.settings.changes_registration.form_data_handler');
+
+        return $formDataHandler;
     }
 
     /**
@@ -130,16 +182,5 @@ class SettingsController extends FrameworkBundleAdminController
         }
 
         return $this->redirectToRoute('kj_dbvcs_settings');
-    }
-
-    /**
-     * @return FormHandlerInterface
-     */
-    private function getGeneralFormHandler()
-    {
-        /** @var FormHandlerInterface */
-        $formDataHandler = $this->get('kaudaj.module.dbvcs.form.settings.general_form_data_handler');
-
-        return $formDataHandler;
     }
 }

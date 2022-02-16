@@ -34,10 +34,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class KJDBVCS extends Module
 {
     /**
-     * @var array<string, string> Configuration values
+     * @var array<string, mixed> Configuration values
      */
     public const CONFIGURATION_VALUES = [
         GeneralConfiguration::EXAMPLE_SETTING_KEY => 'default_value',
+        'KJ_DBVCS_MODULES_REGISTRATION' => true,
+        'KJ_DBVCS_CONFIGURATION_REGISTRATION' => true,
+        'KJ_DBVCS_HOOKS_MODULES_REGISTRATION' => true,
     ];
 
     /**

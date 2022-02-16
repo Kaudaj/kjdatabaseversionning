@@ -25,4 +25,12 @@ kj_dbvcs_settings_general_save:
   defaults:
     _controller: 'Kaudaj\Module\DBVCS\Controller\Admin\SettingsController::processGeneralFormAction'
     _legacy_controller: KJDBVCSSettings
-    _legacy_link: KJDBVCSSettings:update
+    _legacy_link: KJDBVCSSettings:processGeneralForm
+
+kj_dbvcs_settings_changes_registration_save:
+  path: /kjdbvcs/settings/changes-registration
+  methods: [POST, PATCH]
+  defaults:
+    _controller: 'Kaudaj\Module\DBVCS\Controller\Admin\SettingsController::processChangesRegistrationFormAction'
+    _legacy_controller: KJDBVCSSettings
+    _legacy_link: KJDBVCSSettings:processChangesRegistrationForm
