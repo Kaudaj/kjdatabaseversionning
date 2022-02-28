@@ -23,6 +23,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Kaudaj\Module\DBVCS\Repository\ChangeRepository;
+use PrestaShopBundle\Entity\Shop;
+use PrestaShopBundle\Entity\ShopGroup;
 
 /**
  * @ORM\Table(name=ChangeRepository::TABLE_NAME)
@@ -43,6 +45,20 @@ class Change
      * @ORM\Column(type="integer", nullable=true)
      */
     private $commit;
+
+    /**
+     * @var Shop|null
+     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\Shop")
+     * @ORM\JoinColumn(name="id_shop", referencedColumnName="id_shop")
+     */
+    private $shop;
+
+    /**
+     * @var ShopGroup|null
+     * @ORM\ManyToOne(targetEntity="PrestaShopBundle\Entity\ShopGroup")
+     * @ORM\JoinColumn(name="id_shop_group", referencedColumnName="id_shop_group")
+     */
+    private $shopGroup;
 
     /**
      * @var \DateTimeInterface
@@ -74,6 +90,30 @@ class Change
     public function setCommit(?int $commit): self
     {
         $this->commit = $commit;
+
+        return $this;
+    }
+
+    public function getShop(): ?Shop
+    {
+        return $this->shop;
+    }
+
+    public function setShop(?Shop $shop): self
+    {
+        $this->shop = $shop;
+
+        return $this;
+    }
+
+    public function getShopGroup(): ?ShopGroup
+    {
+        return $this->shopGroup;
+    }
+
+    public function setShopGroup(?ShopGroup $shopGroup): self
+    {
+        $this->shopGroup = $shopGroup;
 
         return $this;
     }
