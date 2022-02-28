@@ -29,18 +29,12 @@ class AddChangeCommand
      */
     private $commit;
 
-    /**
-     * @return int|null
-     */
-    public function getCommit()
+    public function getCommit(): ?int
     {
         return $this->commit;
     }
 
-    /**
-     * @param int|null $commit
-     */
-    public function setCommit($commit): self
+    public function setCommit(?int $commit): self
     {
         $this->commit = $commit;
 
