@@ -21,6 +21,8 @@ namespace Kaudaj\Module\DBVCS\Domain\Change\Command;
 
 use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeException;
 use Kaudaj\Module\DBVCS\Domain\Change\ValueObject\ChangeId;
+use Kaudaj\Module\DBVCS\Domain\Change\ValueObject\LocalizedDescription;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 
 /**
  * Class EditChangeCommand is responsible for editing change data.
@@ -33,21 +35,37 @@ class EditChangeCommand
     private $changeId;
 
     /**
+     * @var ShopConstraint
+     */
+    private $shopConstraint;
+
+    /**
      * @var int|null
      */
     private $commit;
 
     /**
+     * @var array<int, LocalizedDescription>
+     */
+    private $localizedDescriptions = [];
+
+    /**
      * @throws ChangeException
      */
-    public function __construct(int $changeId)
+    public function __construct(int $changeId, ShopConstraint $shopConstraint)
     {
         $this->changeId = new ChangeId($changeId);
+        $this->shopConstraint = $shopConstraint;
     }
 
     public function getChangeId(): ChangeId
     {
         return $this->changeId;
+    }
+
+    public function getShopConstraint(): ShopConstraint
+    {
+        return $this->shopConstraint;
     }
 
     public function getCommit(): ?int
@@ -58,6 +76,26 @@ class EditChangeCommand
     public function setCommit(?int $commit): self
     {
         $this->commit = $commit;
+
+        return $this;
+    }
+
+    /**
+     * @return array<int, LocalizedDescription>
+     */
+    public function getLocalizedDescriptions(): array
+    {
+        return $this->localizedDescriptions;
+    }
+
+    /**
+     * @param array<int, string> $localizedDescriptions
+     */
+    public function setLocalizedDescriptions(array $localizedDescriptions): self
+    {
+        foreach ($localizedDescriptions as $langId => $description) {
+            $this->localizedDescriptions[$langId] = new LocalizedDescription($description);
+        }
 
         return $this;
     }

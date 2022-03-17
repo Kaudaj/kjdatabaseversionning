@@ -19,15 +19,38 @@
 
 namespace Kaudaj\Module\DBVCS\Domain\Change\Command;
 
+use Kaudaj\Module\DBVCS\Domain\Change\ValueObject\LocalizedDescription;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
+
 /**
  * Class AddChangeCommand is responsible for adding change data.
  */
 class AddChangeCommand
 {
     /**
+     * @var ShopConstraint
+     */
+    private $shopConstraint;
+
+    /**
      * @var int|null
      */
     private $commit;
+
+    /**
+     * @var array<int, LocalizedDescription>
+     */
+    private $localizedDescriptions = [];
+
+    public function __construct(ShopConstraint $shopConstraint)
+    {
+        $this->shopConstraint = $shopConstraint;
+    }
+
+    public function getShopConstraint(): ShopConstraint
+    {
+        return $this->shopConstraint;
+    }
 
     public function getCommit(): ?int
     {
@@ -37,6 +60,26 @@ class AddChangeCommand
     public function setCommit(?int $commit): self
     {
         $this->commit = $commit;
+
+        return $this;
+    }
+
+    /**
+     * @return array<int, LocalizedDescription>
+     */
+    public function getLocalizedDescriptions(): array
+    {
+        return $this->localizedDescriptions;
+    }
+
+    /**
+     * @param array<int, string> $localizedDescriptions
+     */
+    public function setLocalizedDescriptions(array $localizedDescriptions): self
+    {
+        foreach ($localizedDescriptions as $langId => $description) {
+            $this->localizedDescriptions[$langId] = new LocalizedDescription($description);
+        }
 
         return $this;
     }

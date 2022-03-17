@@ -36,12 +36,12 @@ final class DeleteChangeHandler extends AbstractChangeCommandHandler
      */
     public function handle(DeleteChangeCommand $command): void
     {
-        $change = $this->getChangeEntity(
+        $entity = $this->getChangeEntity(
             $command->getChangeId()->getValue()
         );
 
         try {
-            $this->entityManager->remove($change);
+            $this->entityManager->remove($entity);
             $this->entityManager->flush();
         } catch (Exception $exception) {
             throw new CannotDeleteChangeException('An unexpected error occurred when deleting change', 0, $exception);

@@ -40,7 +40,7 @@ final class ChangeGridDefinitionFactory extends AbstractGridDefinitionFactory
 
     protected function getName()
     {
-        return $this->trans('Changes', [], 'Admin.Advparameters.Feature');
+        return $this->trans('Changes', [], 'Modules.Kjdbvcs.Admin');
     }
 
     /**
@@ -55,14 +55,20 @@ final class ChangeGridDefinitionFactory extends AbstractGridDefinitionFactory
                     'field' => 'id_change',
                 ])
             )
+            ->add((new DataColumn('description'))
+                ->setName($this->trans('Description', [], 'Modules.Kjdbvcs.Admin'))
+                ->setOptions([
+                    'field' => 'description',
+                ])
+            )
             ->add((new DataColumn('commit'))
-                ->setName($this->trans('Commit', [], 'Admin.Advparameters.Feature'))
+                ->setName($this->trans('Commit', [], 'Modules.Kjdbvcs.Admin'))
                 ->setOptions([
                     'field' => 'commit',
                 ])
             )
             ->add((new DataColumn('date_add'))
-                ->setName($this->trans('Date Add', [], 'Admin.Advparameters.Feature'))
+                ->setName($this->trans('Date', [], 'Modules.Kjdbvcs.Admin'))
                 ->setOptions([
                     'field' => 'date_add',
                 ])

@@ -169,6 +169,8 @@ EOF
         $sql[] = '
             CREATE TABLE IF NOT EXISTS `' . ChangeRepository::TABLE_NAME . '` (
                 `id_change` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `id_shop_group` INT UNSIGNED,
+                `id_shop` INT UNSIGNED,
                 `commit` INT UNSIGNED,
                 `date_add` DATETIME NOT NULL
             ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;

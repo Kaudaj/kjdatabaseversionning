@@ -21,7 +21,9 @@ namespace Kaudaj\Module\DBVCS\Grid\Query;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Kaudaj\Module\DBVCS\Repository\ChangeLangRepository;
 use Kaudaj\Module\DBVCS\Repository\ChangeRepository;
+use PrestaShop\PrestaShop\Adapter\Shop\Context as ShopContext;
 use PrestaShop\PrestaShop\Core\Grid\Query\AbstractDoctrineQueryBuilder;
 use PrestaShop\PrestaShop\Core\Grid\Search\SearchCriteriaInterface;
 
@@ -33,28 +35,22 @@ final class ChangeQueryBuilder extends AbstractDoctrineQueryBuilder
     private $contextLangId;
 
     /**
-     * @var int
+     * @var ShopContext
      */
-    private $contextShopId;
+    private $shopContext;
 
-    /**
-     * @param Connection $connection
-     * @param string $dbPrefix
-     * @param int $contextLangId
-     * @param int $contextShopId
-     */
-    public function __construct(Connection $connection, $dbPrefix, $contextLangId, $contextShopId)
+    public function __construct(Connection $connection, string $dbPrefix, int $contextLangId, ShopContext $shopContext)
     {
         parent::__construct($connection, $dbPrefix);
 
         $this->contextLangId = $contextLangId;
-        $this->contextShopId = $contextShopId;
+        $this->shopContext = $shopContext;
     }
 
     public function getSearchQueryBuilder(SearchCriteriaInterface $searchCriteria)
     {
         $qb = $this->getBaseQuery();
-        $qb->select('c.id_change, c.commit, c.date_add');
+        $qb->select('c.id_change, cl.description, c.commit, c.date_add');
 
         if ($searchCriteria->getOffset() !== null) {
             $qb->setFirstResult($searchCriteria->getOffset());
@@ -96,11 +92,31 @@ final class ChangeQueryBuilder extends AbstractDoctrineQueryBuilder
 
     private function getBaseQuery(): QueryBuilder
     {
-        return $this->connection
+        $shopConstraint = $this->shopContext->getShopConstraint();
+        $shopId = $shopConstraint->getShopId() !== null ? $shopConstraint->getShopId()->getValue() : null;
+        $shopGroupId = $shopConstraint->getShopGroupId() !== null ? $shopConstraint->getShopGroupId()->getValue() : null;
+
+        $query = $this->connection
             ->createQueryBuilder()
             ->from(ChangeRepository::TABLE_NAME, 'c')
-            ->setParameter('context_lang_id', $this->contextLangId)
-            ->setParameter('context_shop_id', $this->contextShopId)
+            ->leftJoin('c', ChangeLangRepository::TABLE_NAME, 'cl', 'c.id_change = cl.id_change AND id_lang = :langId')
+            ->setParameter('langId', $this->contextLangId)
         ;
+
+        if ($shopId !== null) {
+            $query
+                ->andWhere('c.id_shop = :shopId')
+                ->setParameter('shopId', $shopId)
+            ;
+        }
+
+        if ($shopGroupId !== null) {
+            $query
+                ->andWhere('c.id_shop_group = :shopGroupId')
+                ->setParameter('shopGroupId', $shopGroupId)
+            ;
+        }
+
+        return $query;
     }
 }

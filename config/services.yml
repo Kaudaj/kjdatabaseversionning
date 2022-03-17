@@ -82,6 +82,9 @@ services:
     class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\AbstractChangeCommandHandler
     arguments:
       - '@doctrine.orm.entity_manager'
+      - '@prestashop.core.admin.lang.repository'
+      - '@prestashop.core.admin.shop.repository'
+      - '@prestashop.core.admin.shop_group.repository'
 
   kaudaj.module.dbvcs.change.command_handler.add:
     public: true
@@ -118,7 +121,7 @@ services:
     parent: prestashop.core.grid.abstract_query_builder
     arguments:
       - '@=service("prestashop.adapter.legacy.context").getContext().language.id'
-      - '@=service("prestashop.adapter.legacy.context").getContext().shop.id'
+      - '@prestashop.adapter.shop.context'
 
   kaudaj.module.dbvcs.grid.data.factory.change_data_factory:
     public: true

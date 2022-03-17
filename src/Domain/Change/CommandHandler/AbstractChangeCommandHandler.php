@@ -23,6 +23,9 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\Persistence\ObjectRepository;
 use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeNotFoundException;
 use Kaudaj\Module\DBVCS\Entity\Change;
+use PrestaShopBundle\Entity\Repository\LangRepository;
+use PrestaShopBundle\Entity\Repository\ShopGroupRepository;
+use PrestaShopBundle\Entity\Repository\ShopRepository;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 
@@ -41,14 +44,36 @@ abstract class AbstractChangeCommandHandler
      */
     protected $entityRepository;
 
-    public function __construct(EntityManager $entityManager)
-    {
+    /**
+     * @var LangRepository
+     */
+    protected $langRepository;
+
+    /**
+     * @var ShopRepository
+     */
+    protected $shopRepository;
+
+    /**
+     * @var ShopGroupRepository
+     */
+    protected $shopGroupRepository;
+
+    public function __construct(
+        EntityManager $entityManager,
+        LangRepository $langRepository,
+        ShopRepository $shopRepository,
+        ShopGroupRepository $shopGroupRepository
+    ) {
         $this->entityManager = $entityManager;
 
         /** @var ObjectRepository<Change> */
         $entityRepository = $this->entityManager->getRepository(Change::class);
-
         $this->entityRepository = $entityRepository;
+
+        $this->langRepository = $langRepository;
+        $this->shopRepository = $shopRepository;
+        $this->shopGroupRepository = $shopGroupRepository;
     }
 
     /**

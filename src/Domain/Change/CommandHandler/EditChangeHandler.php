@@ -22,6 +22,10 @@ namespace Kaudaj\Module\DBVCS\Domain\Change\CommandHandler;
 use Kaudaj\Module\DBVCS\Domain\Change\Command\EditChangeCommand;
 use Kaudaj\Module\DBVCS\Domain\Change\Exception\CannotUpdateChangeException;
 use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeException;
+use Kaudaj\Module\DBVCS\Entity\ChangeLang;
+use PrestaShopBundle\Entity\Lang;
+use PrestaShopBundle\Entity\Shop;
+use PrestaShopBundle\Entity\ShopGroup;
 use PrestaShopException;
 
 /**
@@ -44,6 +48,38 @@ final class EditChangeHandler extends AbstractChangeCommandHandler
             if (null !== $command->getCommit()) {
                 $entity->setCommit($command->getCommit());
             }
+
+            $shopId = $command->getShopConstraint()->getShopId();
+            if (null !== $shopId) {
+                /** @var Shop|null */
+                $shop = $this->shopRepository->find($shopId->getValue());
+
+                $entity->setShop($shop);
+            }
+
+            $shopGroupId = $command->getShopConstraint()->getShopId();
+            if (null !== $shopGroupId) {
+                /** @var ShopGroup|null */
+                $shopGroup = $this->shopGroupRepository->find($shopGroupId->getValue());
+
+                $entity->setShopGroup($shopGroup);
+            }
+
+            foreach ($command->getLocalizedDescriptions() as $langId => $localizedDescription) {
+                $changeLang = new ChangeLang();
+
+                $lang = $this->langRepository->find($langId);
+                if (!($lang instanceof Lang)) {
+                    continue;
+                }
+
+                $changeLang->setLang($lang);
+                $changeLang->setDescription($localizedDescription->getValue());
+
+                $entity->addChangeLang($changeLang);
+            }
+
+            $entity->setDateAdd(new \DateTime('now', new \DateTimeZone('UTC')));
 
             $this->entityManager->persist($entity);
             $this->entityManager->flush();
