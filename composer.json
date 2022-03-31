@@ -13,15 +13,15 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "doctrine/migrations": "^3.4"
+        "doctrine/migrations": "^3.4",
+        "laminas/laminas-zendframework-bridge": "1.1.1"
     },
     "require-dev": {
         "prestashop/php-dev-tools": "^4.2",
         "phpstan/phpstan": "^1.2",
         "phpro/grumphp-shim": "^1.5",
         "phpstan/phpstan-doctrine": "^1.0",
-        "phpstan/extension-installer": "^1.1",
-        "symfony/maker-bundle": "^1.36"
+        "phpstan/extension-installer": "^1.1"
     },
     "autoload": {
         "psr-4": {
