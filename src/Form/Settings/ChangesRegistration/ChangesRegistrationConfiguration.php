@@ -45,10 +45,14 @@ class ChangesRegistrationConfiguration extends AbstractMultistoreConfiguration
     {
         $shopConstraint = $this->getShopConstraint();
 
+        $getConfigurationValue = function (string $fieldName) use ($shopConstraint) {
+            return $this->configuration->get($this->getConfigurationKey($fieldName), null, $shopConstraint);
+        };
+
         return [
-            ChangesRegistrationType::FIELD_MODULES_REGISTRATION => (bool) $this->configuration->get('KJ_DBVCS_MODULES_REGISTRATION', null, $shopConstraint),
-            ChangesRegistrationType::FIELD_CONFIGURATION_REGISTRATION => (bool) $this->configuration->get('KJ_DBVCS_CONFIGURATION_REGISTRATION', null, $shopConstraint),
-            ChangesRegistrationType::FIELD_HOOKS_MODULES_REGISTRATION => (bool) $this->configuration->get('KJ_DBVCS_HOOKS_MODULES_REGISTRATION', null, $shopConstraint),
+            ChangesRegistrationType::FIELD_MODULES_REGISTRATION => (bool) $getConfigurationValue(ChangesRegistrationType::FIELD_MODULES_REGISTRATION),
+            ChangesRegistrationType::FIELD_CONFIGURATION_REGISTRATION => (bool) $getConfigurationValue(ChangesRegistrationType::FIELD_CONFIGURATION_REGISTRATION),
+            ChangesRegistrationType::FIELD_HOOKS_MODULES_REGISTRATION => (bool) $getConfigurationValue(ChangesRegistrationType::FIELD_HOOKS_MODULES_REGISTRATION),
         ];
     }
 
@@ -64,13 +68,13 @@ class ChangesRegistrationConfiguration extends AbstractMultistoreConfiguration
         if ($this->validateConfiguration($configuration)) {
             $shopConstraint = $this->getShopConstraint();
 
-            $updateConfigurationValue = function (string $configurationKey, string $fieldName) use ($configuration, $shopConstraint): void {
-                $this->updateConfigurationValue($configurationKey, $fieldName, $configuration, $shopConstraint);
+            $updateConfigurationValue = function (string $fieldName) use ($configuration, $shopConstraint): void {
+                $this->updateConfigurationValue($this->getConfigurationKey($fieldName), $fieldName, $configuration, $shopConstraint);
             };
 
-            $updateConfigurationValue('KJ_DBVCS_MODULES_REGISTRATION', ChangesRegistrationType::FIELD_MODULES_REGISTRATION);
-            $updateConfigurationValue('KJ_DBVCS_CONFIGURATION_REGISTRATION', ChangesRegistrationType::FIELD_CONFIGURATION_REGISTRATION);
-            $updateConfigurationValue('KJ_DBVCS_HOOKS_MODULES_REGISTRATION', ChangesRegistrationType::FIELD_HOOKS_MODULES_REGISTRATION);
+            $updateConfigurationValue(ChangesRegistrationType::FIELD_MODULES_REGISTRATION);
+            $updateConfigurationValue(ChangesRegistrationType::FIELD_CONFIGURATION_REGISTRATION);
+            $updateConfigurationValue(ChangesRegistrationType::FIELD_HOOKS_MODULES_REGISTRATION);
         }
 
         return [];
@@ -115,5 +119,10 @@ class ChangesRegistrationConfiguration extends AbstractMultistoreConfiguration
         ;
 
         return $resolver;
+    }
+
+    public static function getConfigurationKey(string $fieldName): string
+    {
+        return 'KJ_DBVCS_' . strtoupper($fieldName);
     }
 }

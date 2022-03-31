@@ -23,7 +23,8 @@ if (file_exists(dirname(__FILE__) . '/vendor/autoload.php')) {
     require_once dirname(__FILE__) . '/vendor/autoload.php';
 }
 
-use Kaudaj\Module\DBVCS\Form\Settings\GeneralConfiguration;
+use Kaudaj\Module\DBVCS\Form\Settings\ChangesRegistration\ChangesRegistrationConfiguration;
+use Kaudaj\Module\DBVCS\Form\Settings\ChangesRegistration\ChangesRegistrationType;
 use Kaudaj\Module\DBVCS\Repository\ChangeLangRepository;
 use Kaudaj\Module\DBVCS\Repository\ChangeRepository;
 use Kaudaj\Module\DBVCS\VersionControlManager;
@@ -33,15 +34,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class KJDBVCS extends Module
 {
+    public const CONFIGURATION_KEYS_PREFIX = 'KJ_DBVCS_';
+    public const REGISTERING_CONFIGURATION_KEY = self::CONFIGURATION_KEYS_PREFIX . 'REGISTERING_CHANGES';
+
     /**
      * @var array<string, mixed> Configuration values
      */
-    public const CONFIGURATION_VALUES = [
-        GeneralConfiguration::EXAMPLE_SETTING_KEY => 'default_value',
-        'KJ_DBVCS_MODULES_REGISTRATION' => true,
-        'KJ_DBVCS_CONFIGURATION_REGISTRATION' => true,
-        'KJ_DBVCS_HOOKS_MODULES_REGISTRATION' => true,
-    ];
+    private $configurationValues = [];
 
     /**
      * @var string[] Hooks to register
@@ -111,6 +110,11 @@ EOF
         ];
 
         $this->configuration = new Configuration();
+        $this->configurationValues = [
+            ChangesRegistrationConfiguration::getConfigurationKey(ChangesRegistrationType::FIELD_CONFIGURATION_REGISTRATION) => true,
+            ChangesRegistrationConfiguration::getConfigurationKey(ChangesRegistrationType::FIELD_MODULES_REGISTRATION) => true,
+            ChangesRegistrationConfiguration::getConfigurationKey(ChangesRegistrationType::FIELD_HOOKS_MODULES_REGISTRATION) => true,
+        ];
 
         // try {
         //     /** @var VersionControlManager */
@@ -147,7 +151,7 @@ EOF
     private function installConfiguration(): bool
     {
         try {
-            foreach (self::CONFIGURATION_VALUES as $key => $default_value) {
+            foreach ($this->configurationValues as $key => $default_value) {
                 $this->configuration->set($key, $default_value);
             }
         } catch (Exception $e) {
@@ -216,7 +220,7 @@ EOF
     private function uninstallConfiguration(): bool
     {
         try {
-            foreach (array_keys(self::CONFIGURATION_VALUES) as $key) {
+            foreach (array_keys($this->configurationValues) as $key) {
                 $this->configuration->remove($key);
             }
         } catch (Exception $e) {
