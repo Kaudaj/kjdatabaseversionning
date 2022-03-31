@@ -57,7 +57,7 @@ class LocalizedDescription
         ]);
 
         if (0 !== count($violations)) {
-            throw new ChangeException(sprintf('Invalid Change description: %s', $violations[0]->getMessage()));
+            throw new ChangeException(sprintf('Invalid Change description: %s', $violations->get(0)->getMessage()));
         }
     }
 
