@@ -21,3 +21,7 @@ node_modules/
 .php-cs-fixer.cache
 .phpstan_bootstrap_config.php
 tests/.env
+
+### Version Control ###
+/version-control/*/*
+!/version-control/*/.gitignore

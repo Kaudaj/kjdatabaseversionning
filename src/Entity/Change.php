@@ -68,7 +68,7 @@ class Change
 
     /**
      * @var ArrayCollection<int, ChangeLang>
-     * @ORM\OneToMany(targetEntity=ChangeLang::class, mappedBy="change")
+     * @ORM\OneToMany(targetEntity=ChangeLang::class, cascade={"persist", "remove"}, mappedBy="change")
      */
     private $changeLangs;
 

@@ -41,7 +41,6 @@ class ChangeLang
      * @var Lang
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity=Lang::class)
-     * @ORM\JoinColumn(nullable=false)
      * @ORM\JoinColumn(name="id_lang", referencedColumnName="id_lang", nullable=false, onDelete="CASCADE")
      */
     private $lang;

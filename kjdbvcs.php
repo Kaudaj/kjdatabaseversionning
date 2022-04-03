@@ -23,19 +23,29 @@ if (file_exists(dirname(__FILE__) . '/vendor/autoload.php')) {
     require_once dirname(__FILE__) . '/vendor/autoload.php';
 }
 
+use Kaudaj\Module\DBVCS\Builder\Change\ChangeBuilderInterface;
+use Kaudaj\Module\DBVCS\Builder\Change\Module\ModuleInstallChangeBuilder;
 use Kaudaj\Module\DBVCS\Form\Settings\ChangesRegistration\ChangesRegistrationConfiguration;
 use Kaudaj\Module\DBVCS\Form\Settings\ChangesRegistration\ChangesRegistrationType;
 use Kaudaj\Module\DBVCS\Repository\ChangeLangRepository;
 use Kaudaj\Module\DBVCS\Repository\ChangeRepository;
 use Kaudaj\Module\DBVCS\VersionControlManager;
 use PrestaShop\PrestaShop\Adapter\Configuration;
+use PrestaShop\PrestaShop\Adapter\Shop\Context as ShopContext;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
+use PrestaShop\PrestaShop\Core\Hook\HookDispatcher;
+use PrestaShopBundle\Entity\Repository\LangRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class KJDBVCS extends Module
 {
     public const CONFIGURATION_KEYS_PREFIX = 'KJ_DBVCS_';
     public const REGISTERING_CONFIGURATION_KEY = self::CONFIGURATION_KEYS_PREFIX . 'REGISTERING_CHANGES';
+
+    public const DATABASE_CHANGE_HOOK = 'actionDatabaseChange';
+    public const CHANGE_BUILDER_HOOK_KEY = 'change_builder';
+    public const SHOP_CONSTRAINT_HOOK_KEY = 'shop_constraint';
 
     /**
      * @var array<string, mixed> Configuration values
@@ -47,6 +57,7 @@ class KJDBVCS extends Module
      */
     public const HOOKS = [
         'actionModuleInstallAfter',
+        self::DATABASE_CHANGE_HOOK,
     ];
 
     /**
@@ -54,10 +65,25 @@ class KJDBVCS extends Module
      */
     private $configuration;
 
-    // /**
-    //  * @var VersionControlManager
-    //  */
-    // private $versionControlManager;
+    /**
+     * @var VersionControlManager
+     */
+    private $versionControlManager;
+
+    /**
+     * @var ShopContext
+     */
+    private $shopContext;
+
+    /**
+     * @var LangRepository
+     */
+    private $langRepository;
+
+    /**
+     * @var HookDispatcher
+     */
+    private $hookDispatcher;
 
     public function __construct()
     {
@@ -111,18 +137,24 @@ EOF
 
         $this->configuration = new Configuration();
         $this->configurationValues = [
+            self::REGISTERING_CONFIGURATION_KEY => false,
             ChangesRegistrationConfiguration::getConfigurationKey(ChangesRegistrationType::FIELD_CONFIGURATION_REGISTRATION) => true,
             ChangesRegistrationConfiguration::getConfigurationKey(ChangesRegistrationType::FIELD_MODULES_REGISTRATION) => true,
             ChangesRegistrationConfiguration::getConfigurationKey(ChangesRegistrationType::FIELD_HOOKS_MODULES_REGISTRATION) => true,
         ];
 
-        // try {
-        //     /** @var VersionControlManager */
-        //     $versionControlManager = $this->get('kaudaj.module.kjdbvcs.version_control_manager');
+        /** @var ShopContext */
+        $shopContext = $this->get('prestashop.adapter.shop.context');
 
-        //     $this->versionControlManager = $versionControlManager;
-        // } catch (Exception $e) {
-        // }
+        /** @var LangRepository */
+        $langRepository = $this->get('prestashop.core.admin.lang.repository');
+
+        /** @var HookDispatcher */
+        $hookDispatcher = $this->get('prestashop.core.hook.dispatcher');
+
+        $this->shopContext = $shopContext;
+        $this->langRepository = $langRepository;
+        $this->hookDispatcher = $hookDispatcher;
     }
 
     /**
@@ -184,7 +216,7 @@ EOF
             CREATE TABLE IF NOT EXISTS `' . ChangeLangRepository::TABLE_NAME . '` (
                 `id_change` INT UNSIGNED NOT NULL,
                 `id_lang` INT NOT NULL,
-                `description` INT UNSIGNED NOT NULL,
+                `description` VARCHAR(255) NOT NULL,
                 PRIMARY KEY (id_change, id_lang),
                 FOREIGN KEY (`id_change`)
                 REFERENCES `' . ChangeRepository::TABLE_NAME . '` (`id_change`) 
@@ -275,6 +307,79 @@ EOF
      */
     public function hookActionModuleInstallAfter(array $params): void
     {
-        // $this->versionControlManager->registerChange();
+        if (!key_exists('object', $params) || !($params['object'] instanceof Module)) {
+            throw $this->getInvalidHookParametersException("Parameter 'object' must be an instance of a module.");
+        }
+
+        $module = $params['object'];
+
+        if ($module instanceof $this) {
+            return;
+        }
+
+        $this->triggerDatabaseChangeHook(new ModuleInstallChangeBuilder($this->getTranslator(), $this->langRepository, $module));
+    }
+
+    /**
+     * @param array<string, mixed> $params Hook parameters
+     */
+    public function hookActionDatabaseChange(array $params): void
+    {
+        if (!key_exists(self::CHANGE_BUILDER_HOOK_KEY, $params)) {
+            throw $this->getInvalidHookParametersException("Parameter '" . self::CHANGE_BUILDER_HOOK_KEY . "' is mandatory.");
+        }
+
+        $changeBuilder = $params[self::CHANGE_BUILDER_HOOK_KEY];
+
+        if (!($changeBuilder instanceof ChangeBuilderInterface)) {
+            throw $this->getInvalidHookParametersException("Parameter '" . self::CHANGE_BUILDER_HOOK_KEY . "' must be an instance of a " . ChangeBuilderInterface::class . '.');
+        }
+
+        $shopConstraint = $params[self::SHOP_CONSTRAINT_HOOK_KEY] ?? null;
+
+        if ($shopConstraint !== null && !($shopConstraint instanceof ShopConstraint)) {
+            throw $this->getInvalidHookParametersException("Parameter '" . self::SHOP_CONSTRAINT_HOOK_KEY . "' must be an instance of a " . ShopConstraint::class . '.');
+        }
+
+        $this->registerChange($changeBuilder, $shopConstraint);
+    }
+
+    private function registerChange(ChangeBuilderInterface $changeBuilder, ?ShopConstraint $shopConstraint = null): void
+    {
+        if ($this->configuration->getBoolean(self::REGISTERING_CONFIGURATION_KEY)) {
+            return;
+        }
+
+        $this->configuration->set(self::REGISTERING_CONFIGURATION_KEY, true);
+        $this->getVersionControlManager()->registerChange($changeBuilder, $shopConstraint ?? $this->shopContext->getShopConstraint());
+        $this->configuration->set(self::REGISTERING_CONFIGURATION_KEY, false);
+    }
+
+    private function getVersionControlManager(): VersionControlManager
+    {
+        if ($this->versionControlManager === null) {
+            /** @var VersionControlManager */
+            $versionControlManager = $this->get('kaudaj.module.dbvcs.version_control_manager');
+
+            $this->versionControlManager = $versionControlManager;
+        }
+
+        return $this->versionControlManager;
+    }
+
+    private function getInvalidHookParametersException(?string $message = null): Exception
+    {
+        if ($message === null) {
+            $message = "Expected hook parameters can't be retrieved.";
+        }
+
+        return new InvalidArgumentException($message);
+    }
+
+    private function triggerDatabaseChangeHook(ChangeBuilderInterface $changeBuilder): void
+    {
+        $this->hookDispatcher->dispatchWithParameters(self::DATABASE_CHANGE_HOOK,
+            [self::CHANGE_BUILDER_HOOK_KEY => $changeBuilder]
+        );
     }
 }

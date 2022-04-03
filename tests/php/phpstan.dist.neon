@@ -5,7 +5,9 @@ parameters:
     - ../../src
     - ../../kjdbvcs.php
   ignoreErrors:
-    # - "#Insert your error here (don't forget to escape special characters like the following hash: \\#)#"
+    -
+      message: '#Variable \$[a-zA-Z0-9\\_]+ might not be defined.#'
+      path: ../../src/Resources/skeletons/*
   reportUnmatchedIgnoredErrors: true
   level: 9
 

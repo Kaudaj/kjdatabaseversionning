@@ -4,6 +4,8 @@ services:
 
   kaudaj.module.dbvcs.version_control_manager:
     class: Kaudaj\Module\DBVCS\VersionControlManager
+    arguments:
+      - "@prestashop.core.command_bus"
 
   kaudaj.module.dbvcs.form.settings.general_configuration:
     class: Kaudaj\Module\DBVCS\Form\Settings\GeneralConfiguration
@@ -74,8 +76,8 @@ services:
     parent: 'kaudaj.module.dbvcs.change.query_handler.abstract'
     class: Kaudaj\Module\DBVCS\Domain\Change\QueryHandler\GetChangeHandler
     tags:
-      name: tactician.handler
-      command: Kaudaj\Module\DBVCS\Domain\Change\Query\GetChangeForEditing
+      - name: tactician.handler
+        command: Kaudaj\Module\DBVCS\Domain\Change\Query\GetChangeForEditing
 
   kaudaj.module.dbvcs.change.command_handler.abstract:
     abstract: true
@@ -91,24 +93,24 @@ services:
     parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
     class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\AddChangeHandler
     tags:
-      name: tactician.handler
-      command: Kaudaj\Module\DBVCS\Domain\Change\Command\AddChangeCommand
+      - name: tactician.handler
+        command: Kaudaj\Module\DBVCS\Domain\Change\Command\AddChangeCommand
 
   kaudaj.module.dbvcs.change.command_handler.edit:
     public: true
     parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
     class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\EditChangeHandler
     tags:
-      name: tactician.handler
-      command: Kaudaj\Module\DBVCS\Domain\Change\Command\EditChangeCommand
+      - name: tactician.handler
+        command: Kaudaj\Module\DBVCS\Domain\Change\Command\EditChangeCommand
 
   kaudaj.module.dbvcs.change.command_handler.delete:
     public: true
     parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
     class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\DeleteChangeHandler
     tags:
-      name: tactician.handler
-      command: Kaudaj\Module\DBVCS\Domain\Change\Command\DeleteChangeCommand
+      - name: tactician.handler
+        command: Kaudaj\Module\DBVCS\Domain\Change\Command\DeleteChangeCommand
   
   kaudaj.module.dbvcs.grid.definition.factory.change_grid_definition_factory:
     public: true

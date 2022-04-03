@@ -19,10 +19,13 @@
 
 namespace Kaudaj\Module\DBVCS\Domain\Change\ValueObject;
 
+use Kaudaj\Module\DBVCS\ConstraintValidator\Factory\CleanHtmlValidatorFactory;
 use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeException;
+use PrestaShop\PrestaShop\Adapter\Configuration;
 use PrestaShop\PrestaShop\Core\ConstraintValidator\Constraints\CleanHtml;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class LocalizedDescription
@@ -49,9 +52,7 @@ class LocalizedDescription
      */
     private function assertIsValid(string $description): void
     {
-        $validator = Validation::createValidator();
-
-        $violations = $validator->validate($description, [
+        $violations = $this->getValidator()->validate($description, [
             new NotBlank(),
             new CleanHtml(),
         ]);
@@ -59,6 +60,19 @@ class LocalizedDescription
         if (0 !== count($violations)) {
             throw new ChangeException(sprintf('Invalid Change description: %s', $violations->get(0)->getMessage()));
         }
+    }
+
+    public function getValidator(): ValidatorInterface
+    {
+        $configuration = new Configuration();
+        $allowEmbeddableHtml = $configuration->getBoolean('PS_ALLOW_HTML_IFRAME');
+
+        $validatorBuilder = Validation::createValidatorBuilder();
+        $validatorBuilder->setConstraintValidatorFactory(
+            new CleanHtmlValidatorFactory($allowEmbeddableHtml)
+        );
+
+        return $validatorBuilder->getValidator();
     }
 
     public function getValue(): string
