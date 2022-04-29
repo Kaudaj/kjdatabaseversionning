@@ -19,10 +19,14 @@
 
 namespace Kaudaj\Module\DBVCS\Domain\Commit\CommandHandler;
 
+use Doctrine\ORM\EntityManager;
 use Exception;
 use Kaudaj\Module\DBVCS\Domain\Commit\Command\DeleteCommitCommand;
 use Kaudaj\Module\DBVCS\Domain\Commit\Exception\CannotDeleteCommitException;
 use Kaudaj\Module\DBVCS\Domain\Commit\Exception\CommitException;
+use Kaudaj\Module\DBVCS\Utils\VersionControlManager;
+use PrestaShopBundle\Entity\Repository\LangRepository;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class DeleteCommitHandler is responsible for deleting commit data.
@@ -32,17 +36,38 @@ use Kaudaj\Module\DBVCS\Domain\Commit\Exception\CommitException;
 final class DeleteCommitHandler extends AbstractCommitCommandHandler
 {
     /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    public function __construct(
+        EntityManager $entityManager,
+        LangRepository $langRepository,
+        Filesystem $filesystem
+    ) {
+        parent::__construct($entityManager, $langRepository);
+
+        $this->filesystem = $filesystem;
+    }
+
+    /**
      * @throws CommitException
      */
     public function handle(DeleteCommitCommand $command): void
     {
-        $entity = $this->getCommitEntity(
-            $command->getCommitId()->getValue()
-        );
+        $commitId = $command->getCommitId()->getValue();
+
+        $entity = $this->getCommitEntity($commitId);
 
         try {
             $this->entityManager->remove($entity);
             $this->entityManager->flush();
+
+            $commitPathname = VersionControlManager::COMMITS_DIR . "{$commitId}.php";
+
+            if ($this->filesystem->exists($commitPathname)) {
+                $this->filesystem->remove($commitPathname);
+            }
         } catch (Exception $exception) {
             throw new CannotDeleteCommitException('An unexpected error occurred when deleting commit', 0, $exception);
         }

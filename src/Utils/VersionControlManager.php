@@ -39,6 +39,9 @@ class VersionControlManager
 {
     private const ROOT_PATH = _PS_MODULE_DIR_ . 'kjdbvcs/';
     private const VERSION_CONTROL_DIR = self::ROOT_PATH . 'version-control/';
+    public const CHANGES_DIR = self::VERSION_CONTROL_DIR . 'changes/';
+    public const COMMITS_DIR = self::VERSION_CONTROL_DIR . 'commits/';
+    public const HISTORY_DIR = self::VERSION_CONTROL_DIR . 'history/';
 
     public const CHANGES_NAMESPACE = 'VersionControl\\Changes';
     public const COMMITS_NAMESPACE = 'VersionControl\\Commits';
@@ -69,7 +72,7 @@ class VersionControlManager
                 ->setLocalizedDescriptions($localizedDescriptions)
         );
 
-        $changePathname = self::VERSION_CONTROL_DIR . "changes/{$changeId->getValue()}.php";
+        $changePathname = self::CHANGES_DIR . "{$changeId->getValue()}.php";
         $changeSkeletonPathname = self::ROOT_PATH . 'src/Resources/skeletons/change.tpl.php';
 
         $changeContent = $this->parseSkeleton($changeSkeletonPathname, [
@@ -106,7 +109,7 @@ class VersionControlManager
                     ->setCommitId($commitId->getValue())
             );
 
-            $changePathname = self::VERSION_CONTROL_DIR . "changes/$changeId.php";
+            $changePathname = self::CHANGES_DIR . "$changeId.php";
             $changeContent = file_get_contents($changePathname);
 
             if (!$changeContent) {
@@ -124,7 +127,7 @@ class VersionControlManager
             $downContent .= $fileParser->getClassMethodContent('down') . PHP_EOL . str_repeat(' ', self::INDENTATION * 2);
         }
 
-        $commitPathname = self::VERSION_CONTROL_DIR . "commits/{$commitId->getValue()}.php";
+        $commitPathname = self::COMMITS_DIR . "{$commitId->getValue()}.php";
         $commitSkeletonPathname = self::ROOT_PATH . 'src/Resources/skeletons/commit.tpl.php';
 
         $commitContent = $this->parseSkeleton($commitSkeletonPathname, [
@@ -148,8 +151,8 @@ class VersionControlManager
     {
         $configuration = new MigrationsConfiguration();
 
-        $configuration->addMigrationsDirectory(self::CHANGES_NAMESPACE, self::VERSION_CONTROL_DIR . 'changes');
-        $configuration->addMigrationsDirectory(self::COMMITS_NAMESPACE, self::VERSION_CONTROL_DIR . 'commits');
+        $configuration->addMigrationsDirectory(self::CHANGES_NAMESPACE, self::CHANGES_DIR);
+        $configuration->addMigrationsDirectory(self::COMMITS_NAMESPACE, self::COMMITS_DIR);
 
         return $configuration;
     }
