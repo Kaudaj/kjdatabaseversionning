@@ -64,7 +64,7 @@ final class ChangeGridDefinitionFactory extends AbstractGridDefinitionFactory
             ->add((new DataColumn('commit'))
                 ->setName($this->trans('Commit', [], 'Modules.Kjdbvcs.Admin'))
                 ->setOptions([
-                    'field' => 'commit',
+                    'field' => 'id_commit',
                 ])
             )
             ->add((new DataColumn('date_add'))

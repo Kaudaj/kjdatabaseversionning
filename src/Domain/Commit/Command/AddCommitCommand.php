@@ -17,57 +17,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  */
 
-namespace Kaudaj\Module\DBVCS\Domain\Change\Command;
+namespace Kaudaj\Module\DBVCS\Domain\Commit\Command;
 
-use Kaudaj\Module\DBVCS\Domain\Commit\ValueObject\CommitId;
 use Kaudaj\Module\DBVCS\Domain\ValueObject\LocalizedDescription;
-use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 
 /**
- * Class AddChangeCommand is responsible for adding change data.
+ * Class AddCommitCommand is responsible for adding commit data.
  */
-class AddChangeCommand
+class AddCommitCommand
 {
-    /**
-     * @var ShopConstraint
-     */
-    private $shopConstraint;
-
-    /**
-     * @var CommitId|null
-     */
-    private $commitId;
-
     /**
      * @var array<int, LocalizedDescription>
      */
     private $localizedDescriptions = [];
-
-    public function __construct(ShopConstraint $shopConstraint)
-    {
-        $this->shopConstraint = $shopConstraint;
-    }
-
-    public function getShopConstraint(): ShopConstraint
-    {
-        return $this->shopConstraint;
-    }
-
-    public function getCommitId(): ?CommitId
-    {
-        return $this->commitId;
-    }
-
-    public function setCommitId(?int $commitId): self
-    {
-        if ($commitId !== null) {
-            $commitId = new CommitId($commitId);
-        }
-
-        $this->commitId = $commitId;
-
-        return $this;
-    }
 
     /**
      * @return array<int, LocalizedDescription>

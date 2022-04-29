@@ -17,31 +17,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  */
 
-namespace Kaudaj\Module\DBVCS\Domain\Change\Command;
+namespace Kaudaj\Module\DBVCS\Domain\Commit\Command;
 
-use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeException;
-use Kaudaj\Module\DBVCS\Domain\Change\ValueObject\ChangeId;
+use Kaudaj\Module\DBVCS\Domain\Commit\Exception\CommitException;
 use Kaudaj\Module\DBVCS\Domain\Commit\ValueObject\CommitId;
 use Kaudaj\Module\DBVCS\Domain\ValueObject\LocalizedDescription;
-use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 
 /**
- * Class EditChangeCommand is responsible for editing change data.
+ * Class EditCommitCommand is responsible for editing commit data.
  */
-class EditChangeCommand
+class EditCommitCommand
 {
     /**
-     * @var ChangeId
-     */
-    private $changeId;
-
-    /**
-     * @var ShopConstraint|null
-     */
-    private $shopConstraint;
-
-    /**
-     * @var CommitId|null
+     * @var CommitId
      */
     private $commitId;
 
@@ -51,44 +39,16 @@ class EditChangeCommand
     private $localizedDescriptions = [];
 
     /**
-     * @throws ChangeException
+     * @throws CommitException
      */
-    public function __construct(int $changeId)
+    public function __construct(int $commitId)
     {
-        $this->changeId = new ChangeId($changeId);
+        $this->commitId = new CommitId($commitId);
     }
 
-    public function getChangeId(): ChangeId
-    {
-        return $this->changeId;
-    }
-
-    public function getShopConstraint(): ?ShopConstraint
-    {
-        return $this->shopConstraint;
-    }
-
-    public function setShopConstraint(?ShopConstraint $shopConstraint): self
-    {
-        $this->shopConstraint = $shopConstraint;
-
-        return $this;
-    }
-
-    public function getCommitId(): ?CommitId
+    public function getCommitId(): CommitId
     {
         return $this->commitId;
-    }
-
-    public function setCommitId(?int $commitId): self
-    {
-        if ($commitId !== null) {
-            $commitId = new CommitId($commitId);
-        }
-
-        $this->commitId = $commitId;
-
-        return $this;
     }
 
     /**

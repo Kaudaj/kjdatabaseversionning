@@ -41,8 +41,9 @@ class Change
     private $id;
 
     /**
-     * @var int|null
-     * @ORM\Column(type="integer", nullable=true)
+     * @var Commit|null
+     * @ORM\ManyToOne(targetEntity=Commit::class)
+     * @ORM\JoinColumn(name="id_commit", referencedColumnName="id_commit")
      */
     private $commit;
 
@@ -82,12 +83,12 @@ class Change
         return $this->id;
     }
 
-    public function getCommit(): ?int
+    public function getCommit(): ?Commit
     {
         return $this->commit;
     }
 
-    public function setCommit(?int $commit): self
+    public function setCommit(?Commit $commit): self
     {
         $this->commit = $commit;
 

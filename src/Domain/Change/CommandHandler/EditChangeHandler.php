@@ -23,6 +23,7 @@ use Kaudaj\Module\DBVCS\Domain\Change\Command\EditChangeCommand;
 use Kaudaj\Module\DBVCS\Domain\Change\Exception\CannotUpdateChangeException;
 use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeException;
 use Kaudaj\Module\DBVCS\Entity\ChangeLang;
+use Kaudaj\Module\DBVCS\Entity\Commit;
 use PrestaShopBundle\Entity\Lang;
 use PrestaShopBundle\Entity\Shop;
 use PrestaShopBundle\Entity\ShopGroup;
@@ -45,24 +46,31 @@ final class EditChangeHandler extends AbstractChangeCommandHandler
                 $command->getChangeId()->getValue()
             );
 
-            if (null !== $command->getCommit()) {
-                $entity->setCommit($command->getCommit());
+            $commitId = $command->getCommitId();
+            if (null !== $commitId) {
+                /** @var Commit|null */
+                $commit = $this->commitRepository->find($commitId->getValue());
+
+                $entity->setCommit($commit);
             }
 
-            $shopId = $command->getShopConstraint()->getShopId();
-            if (null !== $shopId) {
-                /** @var Shop|null */
-                $shop = $this->shopRepository->find($shopId->getValue());
+            $shopConstraint = $command->getShopConstraint();
+            if ($shopConstraint) {
+                $shopId = $shopConstraint->getShopId();
+                if (null !== $shopId) {
+                    /** @var Shop|null */
+                    $shop = $this->shopRepository->find($shopId->getValue());
 
-                $entity->setShop($shop);
-            }
+                    $entity->setShop($shop);
+                }
 
-            $shopGroupId = $command->getShopConstraint()->getShopId();
-            if (null !== $shopGroupId) {
-                /** @var ShopGroup|null */
-                $shopGroup = $this->shopGroupRepository->find($shopGroupId->getValue());
+                $shopGroupId = $shopConstraint->getShopId();
+                if (null !== $shopGroupId) {
+                    /** @var ShopGroup|null */
+                    $shopGroup = $this->shopGroupRepository->find($shopGroupId->getValue());
 
-                $entity->setShopGroup($shopGroup);
+                    $entity->setShopGroup($shopGroup);
+                }
             }
 
             foreach ($command->getLocalizedDescriptions() as $langId => $localizedDescription) {
@@ -78,8 +86,6 @@ final class EditChangeHandler extends AbstractChangeCommandHandler
 
                 $entity->addChangeLang($changeLang);
             }
-
-            $entity->setDateAdd(new \DateTime('now', new \DateTimeZone('UTC')));
 
             $this->entityManager->persist($entity);
             $this->entityManager->flush();

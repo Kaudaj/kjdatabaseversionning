@@ -29,7 +29,9 @@ use Kaudaj\Module\DBVCS\Form\Settings\ChangesRegistration\ChangesRegistrationCon
 use Kaudaj\Module\DBVCS\Form\Settings\ChangesRegistration\ChangesRegistrationType;
 use Kaudaj\Module\DBVCS\Repository\ChangeLangRepository;
 use Kaudaj\Module\DBVCS\Repository\ChangeRepository;
-use Kaudaj\Module\DBVCS\VersionControlManager;
+use Kaudaj\Module\DBVCS\Repository\CommitLangRepository;
+use Kaudaj\Module\DBVCS\Repository\CommitRepository;
+use Kaudaj\Module\DBVCS\Utils\VersionControlManager;
 use PrestaShop\PrestaShop\Adapter\Configuration;
 use PrestaShop\PrestaShop\Adapter\Shop\Context as ShopContext;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
@@ -207,7 +209,7 @@ EOF
                 `id_change` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 `id_shop_group` INT UNSIGNED,
                 `id_shop` INT UNSIGNED,
-                `commit` INT UNSIGNED,
+                `id_commit` INT UNSIGNED,
                 `date_add` DATETIME NOT NULL
             ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
         ';
@@ -223,6 +225,28 @@ EOF
                 ON DELETE CASCADE,
                 FOREIGN KEY (`id_lang`)
                 REFERENCES `' . pSQL(_DB_PREFIX_) . 'lang` (`id_lang`) 
+                ON DELETE CASCADE
+            ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
+        ';
+
+        $sql[] = '
+            CREATE TABLE IF NOT EXISTS `' . CommitRepository::TABLE_NAME . '` (
+                `id_commit` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `date_add` DATETIME NOT NULL
+            ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
+        ';
+
+        $sql[] = '
+            CREATE TABLE IF NOT EXISTS `' . CommitLangRepository::TABLE_NAME . '` (
+                `id_commit` INT UNSIGNED NOT NULL,
+                `id_lang` INT NOT NULL,
+                `description` VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id_commit, id_lang),
+                FOREIGN KEY (`id_commit`)
+                REFERENCES `' . CommitRepository::TABLE_NAME . '` (`id_commit`) 
+                ON DELETE CASCADE,
+                FOREIGN KEY (`id_lang`)
+                REFERENCES `' . pSQL(_DB_PREFIX_) . 'lang` (`id_lang`)
                 ON DELETE CASCADE
             ) ENGINE=' . pSQL(_MYSQL_ENGINE_) . ' COLLATE=utf8mb4_general_ci;
         ';
@@ -279,6 +303,14 @@ EOF
             DROP TABLE IF EXISTS `' . ChangeRepository::TABLE_NAME . '`
         ';
 
+        $sql[] = '
+            DROP TABLE IF EXISTS `' . CommitLangRepository::TABLE_NAME . '`
+        ';
+
+        $sql[] = '
+            DROP TABLE IF EXISTS `' . CommitRepository::TABLE_NAME . '`
+        ';
+
         $result = true;
         foreach ($sql as $query) {
             $result = $result && Db::getInstance()->execute($query);
@@ -332,13 +364,17 @@ EOF
         $changeBuilder = $params[self::CHANGE_BUILDER_HOOK_KEY];
 
         if (!($changeBuilder instanceof ChangeBuilderInterface)) {
-            throw $this->getInvalidHookParametersException("Parameter '" . self::CHANGE_BUILDER_HOOK_KEY . "' must be an instance of a " . ChangeBuilderInterface::class . '.');
+            $message = "Parameter '" . self::CHANGE_BUILDER_HOOK_KEY . "' must be an instance of a " . ChangeBuilderInterface::class . '.';
+
+            throw $this->getInvalidHookParametersException($message);
         }
 
         $shopConstraint = $params[self::SHOP_CONSTRAINT_HOOK_KEY] ?? null;
 
         if ($shopConstraint !== null && !($shopConstraint instanceof ShopConstraint)) {
-            throw $this->getInvalidHookParametersException("Parameter '" . self::SHOP_CONSTRAINT_HOOK_KEY . "' must be an instance of a " . ShopConstraint::class . '.');
+            $message = "Parameter '" . self::SHOP_CONSTRAINT_HOOK_KEY . "' must be an instance of a " . ShopConstraint::class . '.';
+
+            throw $this->getInvalidHookParametersException($message);
         }
 
         $this->registerChange($changeBuilder, $shopConstraint);
@@ -346,9 +382,9 @@ EOF
 
     private function registerChange(ChangeBuilderInterface $changeBuilder, ?ShopConstraint $shopConstraint = null): void
     {
-        if ($this->configuration->getBoolean(self::REGISTERING_CONFIGURATION_KEY)) {
+        /*if ($this->configuration->getBoolean(self::REGISTERING_CONFIGURATION_KEY)) {
             return;
-        }
+        }*/
 
         $this->configuration->set(self::REGISTERING_CONFIGURATION_KEY, true);
         $this->getVersionControlManager()->registerChange($changeBuilder, $shopConstraint ?? $this->shopContext->getShopConstraint());

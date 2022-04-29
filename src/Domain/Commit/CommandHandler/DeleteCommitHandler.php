@@ -17,36 +17,34 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  */
 
-namespace Kaudaj\Module\DBVCS\Domain\Change\CommandHandler;
+namespace Kaudaj\Module\DBVCS\Domain\Commit\CommandHandler;
 
 use Exception;
-use Kaudaj\Module\DBVCS\Domain\Change\Command\DeleteChangeCommand;
-use Kaudaj\Module\DBVCS\Domain\Change\Exception\CannotDeleteChangeException;
-use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeException;
+use Kaudaj\Module\DBVCS\Domain\Commit\Command\DeleteCommitCommand;
+use Kaudaj\Module\DBVCS\Domain\Commit\Exception\CannotDeleteCommitException;
+use Kaudaj\Module\DBVCS\Domain\Commit\Exception\CommitException;
 
 /**
- * Class DeleteChangeHandler is responsible for deleting change data.
+ * Class DeleteCommitHandler is responsible for deleting commit data.
  *
  * @internal
  */
-final class DeleteChangeHandler extends AbstractChangeCommandHandler
+final class DeleteCommitHandler extends AbstractCommitCommandHandler
 {
     /**
-     * @throws ChangeException
+     * @throws CommitException
      */
-    public function handle(DeleteChangeCommand $command): void
+    public function handle(DeleteCommitCommand $command): void
     {
-        $entity = $this->getChangeEntity(
-            $command->getChangeId()->getValue()
+        $entity = $this->getCommitEntity(
+            $command->getCommitId()->getValue()
         );
-
-        // TODO: Delete attached file too in version-control/changes folder
 
         try {
             $this->entityManager->remove($entity);
             $this->entityManager->flush();
         } catch (Exception $exception) {
-            throw new CannotDeleteChangeException('An unexpected error occurred when deleting change', 0, $exception);
+            throw new CannotDeleteCommitException('An unexpected error occurred when deleting commit', 0, $exception);
         }
     }
 }

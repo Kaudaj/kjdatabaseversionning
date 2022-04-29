@@ -3,9 +3,12 @@ services:
     public: true
 
   kaudaj.module.dbvcs.version_control_manager:
-    class: Kaudaj\Module\DBVCS\VersionControlManager
+    class: Kaudaj\Module\DBVCS\Utils\VersionControlManager
     arguments:
       - "@prestashop.core.command_bus"
+
+  kaudaj.module.dbvcs.file_parser:
+    class: Kaudaj\Module\DBVCS\Utils\FileParser
 
   kaudaj.module.dbvcs.form.settings.general_configuration:
     class: Kaudaj\Module\DBVCS\Form\Settings\GeneralConfiguration
@@ -77,7 +80,7 @@ services:
     class: Kaudaj\Module\DBVCS\Domain\Change\QueryHandler\GetChangeHandler
     tags:
       - name: tactician.handler
-        command: Kaudaj\Module\DBVCS\Domain\Change\Query\GetChangeForEditing
+        command: Kaudaj\Module\DBVCS\Domain\Change\Query\GetChange
 
   kaudaj.module.dbvcs.change.command_handler.abstract:
     abstract: true
@@ -107,10 +110,57 @@ services:
   kaudaj.module.dbvcs.change.command_handler.delete:
     public: true
     parent: 'kaudaj.module.dbvcs.change.command_handler.abstract'
-    class: Kaudaj\Module\DBVCS\Domain\Change\CommandHandler\DeleteChangeHandler
+    class: Kaudaj\Module\DBVCS\Domain\Commit\CommandHandler\DeleteChangeHandler
     tags:
       - name: tactician.handler
-        command: Kaudaj\Module\DBVCS\Domain\Change\Command\DeleteChangeCommand
+        command: Kaudaj\Module\DBVCS\Domain\Commit\Command\DeleteChangeCommand
+
+  kaudaj.module.dbvcs.commit.query_handler.abstract:
+    abstract: true
+    class: Kaudaj\Module\DBVCS\Domain\Commit\QueryHandler\AbstractCommitQueryHandler
+    arguments:
+      - '@doctrine.orm.entity_manager'
+
+  kaudaj.module.dbvcs.commit.query_handler.get:
+    public: true
+    parent: 'kaudaj.module.dbvcs.commit.query_handler.abstract'
+    class: Kaudaj\Module\DBVCS\Domain\Commit\QueryHandler\GetCommitHandler
+    tags:
+      - name: tactician.handler
+        command: Kaudaj\Module\DBVCS\Domain\Commit\Query\GetCommit
+
+  kaudaj.module.dbvcs.commit.command_handler.abstract:
+    abstract: true
+    class: Kaudaj\Module\DBVCS\Domain\Commit\CommandHandler\AbstractCommitCommandHandler
+    arguments:
+      - '@doctrine.orm.entity_manager'
+      - '@prestashop.core.admin.lang.repository'
+      - '@prestashop.core.admin.shop.repository'
+      - '@prestashop.core.admin.shop_group.repository'
+
+  kaudaj.module.dbvcs.commit.command_handler.add:
+    public: true
+    parent: 'kaudaj.module.dbvcs.commit.command_handler.abstract'
+    class: Kaudaj\Module\DBVCS\Domain\Commit\CommandHandler\AddCommitHandler
+    tags:
+      - name: tactician.handler
+        command: Kaudaj\Module\DBVCS\Domain\Commit\Command\AddCommitCommand
+
+  kaudaj.module.dbvcs.commit.command_handler.edit:
+    public: true
+    parent: 'kaudaj.module.dbvcs.commit.command_handler.abstract'
+    class: Kaudaj\Module\DBVCS\Domain\Commit\CommandHandler\EditCommitHandler
+    tags:
+      - name: tactician.handler
+        command: Kaudaj\Module\DBVCS\Domain\Commit\Command\EditCommitCommand
+
+  kaudaj.module.dbvcs.commit.command_handler.delete:
+    public: true
+    parent: 'kaudaj.module.dbvcs.commit.command_handler.abstract'
+    class: Kaudaj\Module\DBVCS\Domain\Commit\CommandHandler\DeleteCommitHandler
+    tags:
+      - name: tactician.handler
+        command: Kaudaj\Module\DBVCS\Domain\Commit\Command\DeleteCommitCommand
   
   kaudaj.module.dbvcs.grid.definition.factory.change_grid_definition_factory:
     public: true
@@ -142,3 +192,11 @@ services:
       - '@kaudaj.module.dbvcs.grid.data.factory.change_data_factory'
       - '@prestashop.core.grid.filter.form_factory'
       - '@prestashop.core.hook.dispatcher'
+  
+  kaudaj.module.dbvcs.command.commit:
+    class: Kaudaj\Module\DBVCS\Command\CommitCommand
+    arguments:
+      - '@kaudaj.module.dbvcs.version_control_manager'
+      - "@prestashop.core.command_bus"
+    tags:
+      - { name: 'console.command' }

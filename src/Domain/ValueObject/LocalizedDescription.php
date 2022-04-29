@@ -17,7 +17,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  */
 
-namespace Kaudaj\Module\DBVCS\Domain\Change\ValueObject;
+namespace Kaudaj\Module\DBVCS\Domain\ValueObject;
 
 use Kaudaj\Module\DBVCS\ConstraintValidator\Factory\CleanHtmlValidatorFactory;
 use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeException;

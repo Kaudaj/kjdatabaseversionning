@@ -71,6 +71,8 @@ CODE
         return <<<CODE
 /** @var ModuleManager */
 \$moduleManager = \$this->container->get('prestashop.module.manager');
+
+
 CODE
         ;
     }

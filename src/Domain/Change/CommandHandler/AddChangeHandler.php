@@ -25,6 +25,7 @@ use Kaudaj\Module\DBVCS\Domain\Change\Exception\ChangeException;
 use Kaudaj\Module\DBVCS\Domain\Change\ValueObject\ChangeId;
 use Kaudaj\Module\DBVCS\Entity\Change;
 use Kaudaj\Module\DBVCS\Entity\ChangeLang;
+use Kaudaj\Module\DBVCS\Entity\Commit;
 use PrestaShopBundle\Entity\Lang;
 use PrestaShopBundle\Entity\Shop;
 use PrestaShopBundle\Entity\ShopGroup;
@@ -44,8 +45,12 @@ final class AddChangeHandler extends AbstractChangeCommandHandler
         try {
             $entity = new Change();
 
-            if (null !== $command->getCommit()) {
-                $entity->setCommit($command->getCommit());
+            $commitId = $command->getCommitId();
+            if (null !== $commitId) {
+                /** @var Commit|null */
+                $commit = $this->commitRepository->find($commitId->getValue());
+
+                $entity->setCommit($commit);
             }
 
             $shopId = $command->getShopConstraint()->getShopId();

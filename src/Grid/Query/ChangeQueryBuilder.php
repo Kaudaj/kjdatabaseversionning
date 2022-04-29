@@ -50,7 +50,7 @@ final class ChangeQueryBuilder extends AbstractDoctrineQueryBuilder
     public function getSearchQueryBuilder(SearchCriteriaInterface $searchCriteria)
     {
         $qb = $this->getBaseQuery();
-        $qb->select('c.id_change, cl.description, c.commit, c.date_add');
+        $qb->select('c.id_change, cl.description, c.id_commit, c.date_add');
 
         if ($searchCriteria->getOffset() !== null) {
             $qb->setFirstResult($searchCriteria->getOffset());
