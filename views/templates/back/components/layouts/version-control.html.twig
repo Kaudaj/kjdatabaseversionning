@@ -23,6 +23,10 @@
     'grid': changes_grid,
     'card_header': 'Changes' | trans({}, 'Modules.Kjdbvcs.Admin')
   } %}
+  {% include '@Modules/kjdbvcs/views/templates/back/components/organisms/grid.html.twig' with {
+    'grid': commits_grid,
+    'card_header': 'Commits' | trans({}, 'Modules.Kjdbvcs.Admin')
+  } %}
 {% endblock %}
 
 {% block stylesheets %}

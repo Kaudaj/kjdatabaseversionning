@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Kaudaj\Module\DBVCS\Controller\Admin;
 
 use Kaudaj\Module\DBVCS\Search\Filters\ChangeFilters;
+use Kaudaj\Module\DBVCS\Search\Filters\CommitFilters;
 use PrestaShop\PrestaShop\Core\Grid\GridFactory;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Security\Annotation\AdminSecurity;
@@ -43,18 +44,24 @@ class VersionControlController extends FrameworkBundleAdminController
      * )
      *
      * @param Request $request
-     * @param ChangeFilters<string, mixed> $filters
+     * @param ChangeFilters<string, mixed> $changeFilters
+     * @param CommitFilters<string, mixed> $commitFilters
      *
      * @return Response
      */
-    public function indexAction(Request $request, ChangeFilters $filters): Response
+    public function indexAction(Request $request, ChangeFilters $changeFilters, CommitFilters $commitFilters): Response
     {
         /** @var GridFactory */
         $changesGridFactory = $this->get('kaudaj.module.dbvcs.grid.change_grid_factory');
-        $changesGrid = $changesGridFactory->getGrid($filters);
+        $changesGrid = $changesGridFactory->getGrid($changeFilters);
+
+        /** @var GridFactory */
+        $commitsGridFactory = $this->get('kaudaj.module.dbvcs.grid.commit_grid_factory');
+        $commitsGrid = $commitsGridFactory->getGrid($commitFilters);
 
         return $this->render('@Modules/kjdbvcs/views/templates/back/components/layouts/version-control.html.twig', [
             'changes_grid' => $this->presentGrid($changesGrid),
+            'commits_grid' => $this->presentGrid($commitsGrid),
         ]);
     }
 }
